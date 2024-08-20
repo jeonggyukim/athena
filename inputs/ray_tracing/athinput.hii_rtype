@@ -1,0 +1,117 @@
+<comment>
+problem   = hii region
+reference =
+configure = --prob=hii --nscalars=1
+
+<job>
+problem_id = HII
+output_timing = true
+
+<output1>
+file_type  = hst        # History data dump
+dt         = 2e-5       # time increment between outputs
+
+<output2>
+file_type  = hdf5       # HDF5 data dump
+variable   = prim,uov   # variables to be output [prim, cons]
+dt         = 2e-4       # time increment between outputs
+
+<output3>
+file_type  = rst        # Restart data dump
+dt         = 2e-3       # time increment between outputs
+
+<time>
+cfl_number = 0.3        # The Courant, Friedrichs, & Lewy (CFL) Number
+nlim       = -1         # cycle limit
+tlim       = 1e-2       # time limit
+integrator  = rk2       # time integration algorithm
+xorder      = 2         # order of spatial reconstruction
+ncycle_out  = 1         # interval for stdout summary info
+dt_diagnostics = 0
+ops_task = true
+
+<mesh>
+nx1        = 64        # Number of zones in X1-direction
+x1min      = -5        # minimum value of X1
+x1max      = 5         # maximum value of X1
+ix1_bc     = user      # inner-X1 boundary flag
+ox1_bc     = user      # outer-X1 boundary flag
+
+nx2        = 64        # Number of zones in X2-direction
+x2min      = -5        # minimum value of X2
+x2max      = 5         # maximum value of X2
+ix2_bc     = user      # inner-X2 boundary flag
+ox2_bc     = user      # outer-X2 boundary flag
+
+nx3        = 64        # Number of zones in X3-direction
+x3min      = -5        # minimum value of X3
+x3max      = 5         # maximum value of X3
+ix3_bc     = user      # inner-X3 boundary flag
+ox3_bc     = user      # outer-X3 boundary flag
+
+refinement = none
+
+#refinement = adaptive
+#numlevel = 2
+#derefine_count = 1
+#refinement = static
+
+# <refinement1>
+# x1min = -33
+# x1max = -31
+# x2min = 31
+# x2max = 33
+# x3min = -1
+# x3max = 1
+# level = 2
+
+<meshblock>
+nx1        = 32
+nx2        = 32
+nx3        = 32
+
+<hydro>
+gamma           = 1.666666666667 # gamma = C_p/C_v
+active          = disabled       # Hydro is fixed
+
+<problem>
+nH0        = 100.0
+nH0_amb    = 100.0    # Ambient medium [H/cm^-3]
+r0         = 5.0      # Set density to nH0_amb if r > r0 [code]
+x1_src     = 0.0      # x1 source position [code]
+x2_src     = 0.0      # x2 source position [code]
+x3_src     = 0.0      # x3 source position [code]
+t0_src     = 0.0      # Time at which source is turned on [code]
+Qi         = 1e49     # Ionizing photon rate [1/s]
+Ln_over_Li = 0.0      # Ratio between FUV and EUV luminosities
+amp_den    = 0.0      # Amplitude of density perturbation (non zero to turn on)
+turb_flag  = 0        # Velocity perturbation (1 to turn on)
+v3d        = 5.0      # 3D velocity dispersion [code]
+dedt       = 0.0
+t0_refine  = 0.0      # Turn on refinement after t0 [code]
+thr        = 1.0      # gradient threshold for AMR
+
+<units>
+unit_system     = ism
+
+<ray_tracing>
+ray_tracing = true      # true or false
+rays_per_cell = 4.0     # Nominal angular resolution (can be a real number)
+healpix_lev_min = 4     # HealPix level at creation
+nexit_max = 50          # Maximum number of rays to send to neighbor ranks (MPI only)
+tau_max = 30.0          # Stop following a ray if tau > tau_max at all freq bins
+rotate_rays = true      # Apply random rotation to ray directions
+
+<photchem>
+photchem = true            # true of false
+mode = simple              # Mode of photochemistry [simple,ncr]
+bookkeeping = true         # Keep track of net creation term for HI (add uov to <output2>/type)
+flag_op_split  = true      # Operator split update
+flag_rad_force = false     # Turn on radiation pressure force
+flag_update_dt_main = true # Update dt_main if dt_chem < dt_main
+f_dt_rad       = 0.1       # Ensure less than 10% change in x_n per photchem update
+hnu[0]         = 18.0      # SED-averaged energy of photons [eV]
+sigma_d[0]     = 0.0       # Mean dust extinction cross section [cm^2/H]
+sigma_pi_HI[0] = 3.0e-18   # Mean photoionization cross section [cm^2/H]
+tgas_HII       = 8000.0    # Temperature of fully ionized gas [K]
+tgas_HI        = 100.0     # Temperature of fully neutral gas [K]

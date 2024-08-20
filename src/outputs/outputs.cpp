@@ -101,6 +101,7 @@
 #include "../nr_radiation/radiation.hpp"
 #include "../orbital_advection/orbital_advection.hpp"
 #include "../parameter_input.hpp"
+#include "../ray_tracing/ray_tracing.hpp"
 #include "../scalars/scalars.hpp"
 #include "outputs.hpp"
 
@@ -1173,6 +1174,38 @@ void OutputType::LoadOutputData(MeshBlock *pmb) {
       pod->data.InitWithShallowSlice(pcrdiff->zeta,4,0,1);
       AppendOutputDataNode(pod);
       num_vars_++;
+    }
+  }
+
+  // Radiation energy density and flux based on ray tracing
+  if (pmb->pmy_mesh->ray_tracing) {
+    std::string root_name_e = "Er_rayt";
+    std::string root_name_f = "Fr_rayt";
+    for (int ifr=0; ifr<NFREQ_RAYT; ifr++) {
+      std::string energy_density_name = root_name_e + std::to_string(ifr);
+      std::string flux_density_name = root_name_f + std::to_string(ifr);
+      // Radiation energy density
+      if (ContainVariable(output_params.variable, "prim") ||
+          ContainVariable(output_params.variable, "cons") ||
+          ContainVariable(output_params.variable, "Er_rayt")) {
+        pod = new OutputData;
+        pod->type = "SCALARS";
+        pod->name = energy_density_name;
+        pod->data = pmb->prayt->GetRadiationEnergyDensity(ifr);
+        AppendOutputDataNode(pod);
+        num_vars_++;
+      }
+      // Radiation flux density vector
+      if (ContainVariable(output_params.variable, "prim") ||
+          ContainVariable(output_params.variable, "cons") ||
+          ContainVariable(output_params.variable, "Fr_rayt")) {
+        pod = new OutputData;
+        pod->type = "VECTORS";
+        pod->name = flux_density_name;
+        pod->data = pmb->prayt->GetRadiationFluxDensity(ifr);
+        AppendOutputDataNode(pod);
+        num_vars_+=3;
+      }
     }
   }
 

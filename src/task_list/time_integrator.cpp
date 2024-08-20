@@ -32,6 +32,7 @@
 #include "../nr_radiation/radiation.hpp"
 #include "../orbital_advection/orbital_advection.hpp"
 #include "../parameter_input.hpp"
+#include "../photchem/photchem.hpp"
 #include "../reconstruct/reconstruction.hpp"
 #include "../scalars/scalars.hpp"
 #include "task_list.hpp"
@@ -974,7 +975,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
     }
 
     if (NSCALARS > 0) {
-      AddTask(SRC_TERM,(INT_HYD|INT_SCLR|INT_CHM));
+      AddTask(SRC_TERM,(INT_HYD|INT_SCLR|INT_CHM|INT_PHOTCHM));
     } else {
       AddTask(SRC_TERM,INT_HYD);
     }
@@ -1027,6 +1028,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
         AddTask(INT_SCLR,CALC_SCLRFLX);
       }
       AddTask(INT_CHM,INT_SCLR);
+      AddTask(INT_PHOTCHM,INT_SCLR|INT_CHM);
       if (ORBITAL_ADVECTION) {
         AddTask(SEND_SCLR,CALC_HYDORB);
         AddTask(RECV_SCLR,NONE);
@@ -1588,6 +1590,11 @@ void TimeIntegratorTaskList::AddTask(const TaskID& id, const TaskID& dep) {
     task_list_[ntasks].TaskFunc=
         static_cast<TaskStatus (TaskList::*)(MeshBlock*,int)>
         (&TimeIntegratorTaskList::CRTCOpacity);
+    task_list_[ntasks].lb_time = true;
+  } else if (id == INT_PHOTCHM) {
+    task_list_[ntasks].TaskFunc=
+      static_cast<TaskStatus (TaskList::*)(MeshBlock*,int)>
+      (&TimeIntegratorTaskList::IntegratePhotochemistry);
     task_list_[ntasks].lb_time = true;
   } else {
     std::stringstream msg;
@@ -3077,4 +3084,16 @@ TaskStatus TimeIntegratorTaskList::AddSourceTermsCRTC(MeshBlock *pmb, int stage)
     return TaskStatus::next;
   }
   return TaskStatus::fail;
+}
+
+TaskStatus TimeIntegratorTaskList::IntegratePhotochemistry(MeshBlock *pmb, int stage) {
+  if (stage != nstages) return TaskStatus::success; // only do on last stage
+
+  if (pmb->pmy_mesh->pphotchemd->mode == PhotochemistryMode::simple) {
+    PhotochemistrySimple *ppc = static_cast<PhotochemistrySimple*>(pmb->pphotchem);
+    ppc->ApplyFloorAndCeiling();
+    ppc->CalculateRates();
+    ppc->UpdateSourceTermsOperatorSplit();
+  }
+  return TaskStatus::next;
 }

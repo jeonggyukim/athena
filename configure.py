@@ -15,6 +15,7 @@
 #   --nghost=xxx      set NGHOST=xxx
 #   --nscalars=xxx    set NSCALARS=xxx
 #   --nspecies=xxx    set NSPECIES=xxx
+#   --nfreq_rayt=xxx  set NFREQ_RAYT=xxx (number of frequency bins for ray tracing)
 #   -eos_table        enable EOS table
 #   -b                enable magnetic fields
 #   -s                enable special relativity
@@ -123,6 +124,11 @@ parser.add_argument('--nscalars',
 parser.add_argument('--nspecies',
                     default='0',
                     help='set number of chemical species')
+
+# --nfreq_rayt=[value] argument
+parser.add_argument('--nfreq_rayt',
+                    default='1',
+                    help='set number of ray tracing frequency bins')
 
 # -b argument
 parser.add_argument('-b',
@@ -485,6 +491,9 @@ definitions['NUMBER_PASSIVE_SCALARS'] = args['nscalars']
 
 # --nspecies=[value] argument
 definitions['NUMBER_CHEMICAL_SPECIES'] = args['nspecies']
+
+# --nfreq_rayt=[value] argument
+definitions['NFREQ_RAYT'] = args['nfreq_rayt']
 
 # -b argument
 # set variety of macros based on whether MHD/hydro or adi/iso are defined
@@ -1048,6 +1057,7 @@ output_config('ChemRadiation', (args['chem_radiation']
                                 if args['chem_radiation'] is not None else 'OFF'), flog)
 output_config('chem_ode_solver', (args['chem_ode_solver'] if args['chem_ode_solver']
                                   is not None else 'OFF'), flog)
+output_config('Number of rayt freq bins:', args['nfreq_rayt'], flog)
 output_config('Debug flags', ('ON' if args['debug'] else 'OFF'), flog)
 output_config('Code coverage flags', ('ON' if args['coverage'] else 'OFF'), flog)
 output_config('Linker flags', makefile_options['LINKER_FLAGS'] + ' '

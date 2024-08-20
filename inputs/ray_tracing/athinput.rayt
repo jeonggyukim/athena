@@ -1,0 +1,73 @@
+<comment>
+problem   = ray tracing test
+reference =
+configure = --prob=rayt
+
+<job>
+problem_id = RayTracing # problem ID: basename of output filenames
+output_timing = true
+
+<output1>
+file_type  = vtk        # vtk data dump
+variable   = prim       # variables to be output
+dt         = 0.5        # time increment between outputs
+
+<time>
+cfl_number = 0.3        # The Courant, Friedrichs, & Lewy (CFL) Number
+nlim       = 10         # cycle limit
+tlim       = 10.0       # time limit
+integrator  = vl2       # time integration algorithm
+xorder      = 2         # order of spatial reconstruction
+ncycle_out  = 1         # interval for stdout summary info
+
+<mesh>
+nx1        = 64         # Number of zones in X1-direction
+x1min      = -32        # minimum value of X1
+x1max      = 32         # maximum value of X1
+ix1_bc     = outflow    # inner-X1 boundary flag
+ox1_bc     = outflow    # outer-X1 boundary flag
+
+nx2        = 64         # Number of zones in X2-direction
+x2min      = -32        # minimum value of X2
+x2max      = 32         # maximum value of X2
+ix2_bc     = outflow    # inner-X2 boundary flag
+ox2_bc     = outflow    # outer-X2 boundary flag
+
+nx3        = 64         # Number of zones in X3-direction
+x3min      = -32        # minimum value of X3
+x3max      = 32         # maximum value of X3
+ix3_bc     = outflow    # inner-X3 boundary flag
+ox3_bc     = outflow    # outer-X3 boundary flag
+
+refinement = none
+
+#refinement = adaptive
+#numlevel = 2
+#derefine_count = 1
+
+<meshblock>
+nx1        = 32
+nx2        = 32
+nx3        = 32
+
+<hydro>
+gamma           = 1.666666666667 # gamma = C_p/C_v
+iso_sound_speed = 0.4082482905   # equivalent to sqrt(gamma*p/d) for p=0.1, d=1
+active          = disabled       # Hydro is fixed
+
+<units>
+unit_system     = custom
+mass_cgs        = 1.0
+length_cgs      = 2.99792458e+10 # To set speed_of_light_code to 1
+time_cgs        = 1.0
+
+<problem>
+chi0            = 1e-12 # uniform opacity per length (small number)
+
+<ray_tracing>
+ray_tracing = true      # true or false
+rays_per_cell = 4.0     # Nominal angular resolution (can be a real number)
+healpix_lev_min = 4     # HealPix level at creation
+nexit_max = 50          # Maximum number of rays to send to neighbor ranks (MPI only)
+tau_max = 20.0          # Stop following a ray if tau > tau_max at all freq bins
+rotate_rays = false     # Apply random rotation to ray direction vectors

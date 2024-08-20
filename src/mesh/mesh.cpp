@@ -53,6 +53,8 @@
 #include "../orbital_advection/orbital_advection.hpp"
 #include "../outputs/io_wrapper.hpp"
 #include "../parameter_input.hpp"
+#include "../photchem/photchem.hpp"
+#include "../ray_tracing/ray_tracing.hpp"
 #include "../reconstruct/reconstruction.hpp"
 #include "../scalars/scalars.hpp"
 #include "../units/units.hpp"
@@ -96,6 +98,10 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     shear_periodic(GetBoundaryFlag(pin->GetOrAddString("mesh", "ix1_bc", "none"))
                    == BoundaryFlag::shear_periodic ? true : false),
     fluid_setup(GetFluidFormulation(pin->GetOrAddString("hydro", "active", "true"))),
+    ray_tracing(pin->GetOrAddString("ray_tracing", "ray_tracing", "false") == "false" ?
+                false : true),
+    photchem(pin->GetOrAddString("photchem", "photchem", "false") == "false" ?
+             false : true),
     start_time(pin->GetOrAddReal("time", "start_time", 0.0)), time(start_time),
     tlim(pin->GetReal("time", "tlim")), dt(std::numeric_limits<Real>::max()),
     dt_hyperbolic(dt), dt_parabolic(dt), dt_user(dt),
@@ -331,6 +337,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
 
   // initialize units
   punit = new Units(pin);
+  if (photchem) pphotchemd = new PhotochemistryDriver(this, pin);
 
   if (EOS_TABLE_ENABLED) peos_table = new EosTable(pin);
   InitUserMeshData(pin);
@@ -561,6 +568,8 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     my_blocks(i-gids_)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
   }
 
+  if (ray_tracing) praytd = new RayTracingDriver(this, pin);
+
   ResetLoadBalanceVariables();
 
   if (turb_flag > 0) // TurbulenceDriver depends on the MeshBlock ctor
@@ -598,6 +607,10 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
     shear_periodic(GetBoundaryFlag(pin->GetOrAddString("mesh", "ix1_bc", "none"))
                    == BoundaryFlag::shear_periodic ? true : false),
     fluid_setup(GetFluidFormulation(pin->GetOrAddString("hydro", "active", "true"))),
+    ray_tracing(pin->GetOrAddString("ray_tracing", "ray_tracing", "false") == "false" ?
+                false : true),
+    photchem(pin->GetOrAddString("photchem", "photchem", "false") == "false" ?
+             false : true),
     start_time(pin->GetOrAddReal("time", "start_time", 0.0)), time(start_time),
     tlim(pin->GetReal("time", "tlim")), dt(std::numeric_limits<Real>::max()),
     dt_hyperbolic(dt), dt_parabolic(dt), dt_user(dt),
@@ -937,6 +950,8 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
     }
   }
 
+  if (ray_tracing) praytd = new RayTracingDriver(this, pin);
+
   ResetLoadBalanceVariables();
 
   // clean up
@@ -962,6 +977,8 @@ Mesh::~Mesh() {
   else if (SELF_GRAVITY_ENABLED == 2) delete pmgrd;
   if (IM_RADIATION_ENABLED) delete pimrad;
   if (turb_flag > 0) delete ptrbd;
+  if (ray_tracing) delete praytd;
+  if (photchem) delete pphotchemd;
   if (adaptive) { // deallocate arrays for AMR
     delete [] nref;
     delete [] nderef;
@@ -1573,6 +1590,22 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
       pfgrd->Solve(1, 0);
     else if (SELF_GRAVITY_ENABLED == 2)
       pmgrd->Solve(1);
+
+    // Perform ray tracing
+    if (ray_tracing) praytd->RayTrace();
+    // Calculate rates
+    if (photchem) {
+      if (pphotchemd->mode == PhotochemistryMode::simple) {
+        MeshBlock *pmb;
+        PhotochemistrySimple *ppc;
+#pragma omp for private(pmb,ppc)
+        for (int i=0; i<nblocal; ++i) {
+          pmb = my_blocks(i);
+          ppc = static_cast<PhotochemistrySimple*>(pmb->pphotchem);
+          ppc->CalculateRates();
+        }
+      }
+    }
 
 #pragma omp parallel num_threads(nthreads)
     {

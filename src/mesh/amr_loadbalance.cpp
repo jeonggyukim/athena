@@ -22,6 +22,7 @@
 #include "../globals.hpp"
 #include "../hydro/hydro.hpp"
 #include "../nr_radiation/radiation.hpp"
+#include "../ray_tracing/ray_tracing.hpp"
 #include "../utils/buffer_utils.hpp"
 #include "mesh.hpp"
 #include "mesh_refinement.hpp"
@@ -657,6 +658,9 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
   // re-initialize the MeshBlocks
   for (int i=0; i<nblocal; ++i)
     my_blocks(i)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
+
+  if (ray_tracing) praytd->Initialize(1);
+
   Initialize(2, pin);
 
   ResetLoadBalanceVariables();

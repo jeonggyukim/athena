@@ -123,6 +123,7 @@ void Units::SetUnitsConstants() {
   speed_of_light_code = Constants::speed_of_light_cgs*cm_code/second_code;
   echarge_code = Constants::echarge_cgs*std::sqrt(dyne_code*4*PI)*cm_code;
   bethe_code = 1.e51 * erg_code;
+  electron_volt_code = Constants::electron_volt_cgs*erg_code;
 }
 
 //========================================================================================

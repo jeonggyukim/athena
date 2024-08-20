@@ -33,6 +33,7 @@ static const Real k_boltzmann_cgs      = 1.380658e-16;
 static const Real speed_of_light_cgs   = 2.99792458e+10;
 static const Real echarge_cgs          = 4.80320427e-10;
 static const Real kelvin_cgs           = 1;
+static const Real electron_volt_cgs    = 1.60218e-12;
 } // namespace Constants
 
 //! \brief Class for units
@@ -77,6 +78,7 @@ class Units {
   Real speed_of_light_code;
   Real echarge_code;
   Real bethe_code; // 1.e51 erg
+  Real electron_volt_code;
 
  private:
   // code MLT units in c.g.s.

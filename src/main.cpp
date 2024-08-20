@@ -46,6 +46,7 @@
 #include "outputs/io_wrapper.hpp"
 #include "outputs/outputs.hpp"
 #include "parameter_input.hpp"
+#include "ray_tracing/ray_tracing.hpp"
 #include "task_list/chem_rad_task_list.hpp"
 #include "utils/utils.hpp"
 
@@ -508,6 +509,8 @@ int main(int argc, char *argv[]) {
             pmesh->ncycle, cpu_time, Real(nzones)/cpu_time);
       }
     }
+
+    if (pmesh->ray_tracing) pmesh->praytd->RayTrace();
 
     for (int stage=1; stage<=ptlist->nstages; ++stage) {
       ptlist->DoTaskListOneStage(pmesh, stage);

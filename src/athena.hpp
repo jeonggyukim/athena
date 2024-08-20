@@ -239,5 +239,7 @@ using CRBoundaryFunc = void (*)(
 using CRSrcTermFunc = void (*)(
     MeshBlock *pmb, const Real time, const Real dt,
     const AthenaArray<Real> &prim, FaceField &b, AthenaArray<Real> &u_cr);
+using RayTracingOpacityFunc = void (*)(MeshBlock *pmb, AthenaArray<Real> &chi);
+using RayTracingDensityFunc = void (*)(MeshBlock *pmb, AthenaArray<Real> &den);
 
 #endif // ATHENA_HPP_

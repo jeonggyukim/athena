@@ -40,6 +40,8 @@
 #include "../nr_radiation/radiation.hpp"
 #include "../orbital_advection/orbital_advection.hpp"
 #include "../parameter_input.hpp"
+#include "../photchem/photchem.hpp"
+#include "../ray_tracing/ray_tracing.hpp"
 #include "../reconstruct/reconstruction.hpp"
 #include "../scalars/scalars.hpp"
 #include "../utils/buffer_utils.hpp"
@@ -251,6 +253,10 @@ MeshBlock::MeshBlock(int igid, int ilid, LogicalLocation iloc, RegionSize input_
   // OrbitalAdvection: constructor depends on Coordinates, Hydro, Field, PassiveScalars.
   porb = new OrbitalAdvection(this, pin);
 
+  if (pmy_mesh->ray_tracing) prayt = new RayTracing(this, pin);
+  if (pmy_mesh->photchem)
+    pphotchem = pmy_mesh->pphotchemd->CreatePhotochemistry(this, pin);
+
   // Create user mesh data
   InitUserMeshBlockData(pin);
 
@@ -435,6 +441,10 @@ MeshBlock::MeshBlock(int igid, int ilid, Mesh *pm, ParameterInput *pin,
   // OrbitalAdvection: constructor depends on Coordinates, Hydro, Field, PassiveScalars.
   porb = new OrbitalAdvection(this, pin);
 
+  if (pmy_mesh->ray_tracing) prayt = new RayTracing(this, pin);
+  if (pmy_mesh->photchem)
+    pphotchem = pmy_mesh->pphotchemd->CreatePhotochemistry(this, pin);
+
   InitUserMeshBlockData(pin);
 
   std::size_t os = 0;
@@ -561,6 +571,8 @@ MeshBlock::~MeshBlock() {
   if (NR_RADIATION_ENABLED || IM_RADIATION_ENABLED) delete pnrrad;
   if (CR_ENABLED) delete pcr;
   if (CRDIFFUSION_ENABLED) delete pcrdiff;
+  if (pmy_mesh->ray_tracing) delete prayt;
+  if (pmy_mesh->photchem) delete pphotchem;
 
   // BoundaryValues should be destructed AFTER all BoundaryVariable objects are destroyed
   delete pbval;

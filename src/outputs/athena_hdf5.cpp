@@ -32,6 +32,7 @@
 #include "../mesh/mesh.hpp"
 #include "../nr_radiation/radiation.hpp"
 #include "../parameter_input.hpp"
+#include "../ray_tracing/ray_tracing.hpp"
 #include "outputs.hpp"
 
 // Only proceed if HDF5 output enabled
@@ -164,6 +165,9 @@ void ATHDF5Output::WriteOutputFile(Mesh *pm, ParameterInput *pin, bool flag) {
         }
       }
     }
+    // Ray tracing
+    if (pm->ray_tracing)
+      num_variables[n_dataset] += 4*NFREQ_RAYT;
 
     // n_dataset = 1: face-centered FaceField variable data
     n_dataset++;

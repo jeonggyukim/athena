@@ -67,6 +67,9 @@
 // include radiative transfer evolved with implicit method? default=0 (false)
 #define IM_RADIATION_ENABLED @IM_RADIATION_ENABLED@
 
+// number of frequency bins for ray tracing
+#define NFREQ_RAYT @NFREQ_RAYT@
+
 // include cosmic ray transport? default=0 (false)
 #define CR_ENABLED @CR_ENABLED@
 

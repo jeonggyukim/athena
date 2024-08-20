@@ -64,6 +64,10 @@ class PassiveScalars;
 class NRRadiation;
 class IMRadiation;
 class TurbulenceDriver;
+class RayTracing;
+class RayTracingDriver;
+class Photochemistry;
+class PhotochemistryDriver;
 
 FluidFormulation GetFluidFormulation(const std::string& input_string);
 
@@ -135,6 +139,8 @@ class MeshBlock {
   EquationOfState *peos;
   ChemRadiation *pchemrad;
   OrbitalAdvection *porb;
+  RayTracing *prayt;
+  Photochemistry *pphotchem;
 
 
   // functions
@@ -234,6 +240,7 @@ class Mesh {
 #ifdef HDF5OUTPUT
   friend class ATHDF5Output;
 #endif
+  friend class RayTracingDriver;
 
  public:
   // 2x function overloads of ctor: normal and restarted simulation
@@ -255,6 +262,8 @@ class Mesh {
   const int orbital_advection;       // order of the orbital splitting method
   const bool shear_periodic;         // flag of shear periodic b.c.
   const FluidFormulation fluid_setup;
+  const bool ray_tracing;
+  const bool photchem;
   Real start_time, time, tlim, dt, dt_hyperbolic, dt_parabolic, dt_user, cfl_number;
   int nlim, ncycle, ncycle_out, dt_diagnostics;
   std::string sts_integrator;
@@ -274,6 +283,8 @@ class Mesh {
   FFTGravityDriver *pfgrd;
   MGGravityDriver *pmgrd;
   MGCRDiffusionDriver *pmcrd;
+  RayTracingDriver *praytd;
+  PhotochemistryDriver *pphotchemd;
   Units *punit;
 
   // implicit radiation iteration
