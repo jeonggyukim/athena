@@ -75,17 +75,17 @@ gamma           = 1.666666666667 # gamma = C_p/C_v
 
 <problem>
 nH0        = 100.0    # Initial density [H/cm^-3]
-nH0_amb    = 1.0      # Ambient medium [H/cm^-3]
+nH0_amb    = 100.0    # Ambient medium [H/cm^-3]
 r0         = 15.0     # Set density to nH0_amb if r > r0 [code]
 x1_src     = 0.0      # x1 source position [code]
 x2_src     = 0.0      # x2 source position [code]
 x3_src     = 0.0      # x3 source position [code]
-t0_src     = 0.7      # Time at which source is turned on [code]
+t0_src     = 0.0      # Time at which source is turned on [code]
 Qi         = 1e49     # Ionizing photon rate [1/s]
 Ln_over_Li = 0.0      # Ratio between FUV and EUV luminosities
 amp_den    = 0.0      # Amplitude of density perturbation (non zero to turn on)
 turb_flag  = 1        # Velocity perturbation (1 to turn on)
-v3d        = 5.0      # 3D velocity dispersion [code]
+v3d        = 0.0      # 3D velocity dispersion [code]
 dedt       = 0.0
 t0_refine  = 0.0      # Turn on refinement after t0 [code]
 thr        = 1.0      # gradient threshold for AMR
@@ -123,4 +123,4 @@ hnu[1]         = 9.0       # SED-averaged energy of photons [eV]
 sigma_d[1]     = 1e-21     # Mean dust extinction cross section [cm^2/H]
 sigma_pi_HI[1] = 0.0       # SED-averaged energy of photons [eV]
 tgas_HII       = 8000.0    # Temperature of fully ionized gas [K]
-tgas_HI        = 100.0     # Temperature of fully neutral gas [K]
+tgas_HI        = 20.0     # Temperature of fully neutral gas [K]

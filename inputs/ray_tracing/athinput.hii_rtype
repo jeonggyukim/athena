@@ -75,7 +75,7 @@ gamma           = 1.666666666667 # gamma = C_p/C_v
 active          = disabled       # Hydro is fixed
 
 <problem>
-nH0        = 100.0
+nH0        = 100.0    # Initial density [H/cm^-3]
 nH0_amb    = 100.0    # Ambient medium [H/cm^-3]
 r0         = 5.0      # Set density to nH0_amb if r > r0 [code]
 x1_src     = 0.0      # x1 source position [code]
@@ -114,4 +114,4 @@ hnu[0]         = 18.0      # SED-averaged energy of photons [eV]
 sigma_d[0]     = 0.0       # Mean dust extinction cross section [cm^2/H]
 sigma_pi_HI[0] = 3.0e-18   # Mean photoionization cross section [cm^2/H]
 tgas_HII       = 8000.0    # Temperature of fully ionized gas [K]
-tgas_HI        = 100.0     # Temperature of fully neutral gas [K]
+tgas_HI        = 20.0     # Temperature of fully neutral gas [K]
