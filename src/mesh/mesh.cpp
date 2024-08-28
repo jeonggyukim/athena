@@ -759,6 +759,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
 
   // initialize units
   punit = new Units(pin);
+  if (photchem) pphotchemd = new PhotochemistryDriver(this, pin);
 
   if (EOS_TABLE_ENABLED) peos_table = new EosTable(pin);
   InitUserMeshData(pin);
